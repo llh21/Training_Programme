@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>多人抽奖工具</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- 配置Tailwind自定义颜色 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#4F46E5',
+            secondary: '#10B981',
+            accent: '#F59E0B',
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .number-animation {
+        animation: numberChange 0.1s infinite;
+      }
+      @keyframes numberChange {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans">
+  <!-- 顶部导航 -->
+  <header class="bg-white shadow-sm py-4">
+    <div class="container mx-auto px-4 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <i class="fa fa-random text-primary text-2xl"></i>
+        <h1 class="text-xl font-bold text-gray-800">多人抽奖工具</h1>
+      </div>
+      <div class="flex items-center space-x-3">
+        <button id="share-btn" class="text-sm bg-primary/10 text-primary px-3 py-1.5 rounded-lg hover:bg-primary/20 transition-colors flex items-center">
+          <i class="fa fa-share-alt mr-1.5"></i> 分享
+        </button>
+        <button id="help-btn" class="text-gray-500 hover:text-primary transition-colors">
+          <i class="fa fa-question-circle text-lg"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 py-8 max-w-2xl">
+    <!-- 用户信息提示（首次使用时显示） -->
+    <div id="user-info" class="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6 hidden">
+      <div class="flex items-start">
+        <i class="fa fa-info-circle text-primary mt-0.5 mr-3"></i>
+        <div class="text-sm text-gray-700">
+          <p>这是您的专属抽奖链接，数据仅保存在您的设备上，分享给他人不会相互干扰。</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 基本设置 -->
+    <section class="bg-white rounded-xl shadow-md p-6 mb-6">
+      <h2 class="text-lg font-semibold mb-4 text-gray-800">基本设置</h2>
+      
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">总人数</label>
+          <div class="flex">
+            <input type="number" id="total-people" min="1" max="9999" value="100" 
+                  class="flex-grow px-4 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+            <span class="px-4 py-2 bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-gray-600">人</span>
+          </div>
+          <p class="text-xs text-gray-500 mt-1">设置参与抽奖的总人数，将生成1到该数的编号</p>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">每次抽取数量</label>
+          <div class="flex">
+            <button id="decrease-count" class="px-3 py-2 border border-gray-300 rounded-l-lg hover:bg-gray-100 transition-colors">
+              <i class="fa fa-minus text-gray-600"></i>
+            </button>
+            <input type="number" id="draw-count" min="1" max="50" value="1" 
+                  class="w-full px-4 py-2 border-y border-gray-300 text-center focus:ring-0 focus:border-primary transition-all">
+            <button id="increase-count" class="px-3 py-2 border border-gray-300 rounded-r-lg hover:bg-gray-100 transition-colors">
+              <i class="fa fa-plus text-gray-600"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">抽奖标题</label>
+          <input type="text" id="draw-title" value="幸运抽奖" 
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+        </div>
+      </div>
+    </section>
+    
+    <!-- 抽奖区域 -->
+    <section class="bg-white rounded-xl shadow-md p-6 mb-6">
+      <h2 class="text-lg font-semibold mb-4 text-gray-800">抽奖区</h2>
+      
+      <div class="flex flex-col items-center">
+        <div id="drawing-area" class="w-full h-40 md:h-56 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg mb-6 overflow-hidden relative">
+          <div id="result-display" class="text-3xl md:text-5xl font-bold text-gray-700 text-center">
+            准备就绪
+          </div>
+          <div id="animation-area" class="absolute inset-0 flex items-center justify-center opacity-0">
+            <div id="number-animation" class="text-3xl md:text-5xl font-bold text-primary"></div>
+          </div>
+        </div>
+        
+        <button id="draw-button" class="bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-full text-lg font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all focus:outline-none focus:ring-4 focus:ring-primary/30 w-full md:w-auto">
+          <i class="fa fa-play mr-2"></i>开始抽奖
+        </button>
+      </div>
+    </section>
+    
+    <!-- 抽奖历史 -->
+    <section class="bg-white rounded-xl shadow-md p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-semibold text-gray-800">抽奖历史</h2>
+        <button id="clear-history" class="text-sm text-gray-500 hover:text-red-500 transition-colors flex items-center">
+          <i class="fa fa-trash-o mr-1"></i> 清空历史
+        </button>
+      </div>
+      
+      <div id="history-container" class="max-h-60 overflow-y-auto space-y-3">
+        <!-- 历史记录将通过JS动态添加 -->
+        <div class="text-center text-gray-500 py-6" id="empty-history">
+          暂无抽奖记录
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 分享模态框 -->
+  <div id="share-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl p-6 w-full max-w-md m-4 transform transition-all scale-95 opacity-0" id="share-modal-content">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold text-gray-800">分享您的抽奖</h3>
+        <button id="close-share" class="text-gray-500 hover:text-gray-700">
+          <i class="fa fa-times text-xl"></i>
+        </button>
+      </div>
+      
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">复制链接</label>
+          <div class="flex">
+            <input type="text" id="share-link" readonly 
+                  class="flex-grow px-4 py-2 border border-gray-300 rounded-l-lg bg-gray-50">
+            <button id="copy-link" class="bg-primary text-white px-4 py-2 rounded-r-lg hover:bg-primary/90 transition-colors">
+              复制
+            </button>
+          </div>
+          <p class="text-xs text-gray-500 mt-1">分享此链接给他人，各自的数据互不干扰</p>
+        </div>
+        
+        <div class="flex justify-center space-x-4 pt-2">
+          <button class="share-platform p-3 bg-[#1DA1F2]/10 text-[#1DA1F2] rounded-full hover:bg-[#1DA1F2]/20 transition-colors" data-platform="twitter">
+            <i class="fa fa-twitter"></i>
+          </button>
+          <button class="share-platform p-3 bg-[#25D366]/10 text-[#25D366] rounded-full hover:bg-[#25D366]/20 transition-colors" data-platform="whatsapp">
+            <i class="fa fa-whatsapp"></i>
+          </button>
+          <button class="share-platform p-3 bg-[#3b5998]/10 text-[#3b5998] rounded-full hover:bg-[#3b5998]/20 transition-colors" data-platform="facebook">
+            <i class="fa fa-facebook"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 帮助模态框 -->
+  <div id="help-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl p-6 w-full max-w-md max-h-[80vh] overflow-y-auto m-4 transform transition-all scale-95 opacity-0" id="help-modal-content">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold text-gray-800">使用帮助</h3>
+        <button id="close-help" class="text-gray-500 hover:text-gray-700">
+          <i class="fa fa-times text-xl"></i>
+        </button>
+      </div>
+      
+      <div class="space-y-4 text-gray-700">
+        <div>
+          <h4 class="font-semibold mb-2">如何使用？</h4>
+          <ol class="list-decimal pl-5 space-y-1 text-sm">
+            <li>设置参与抽奖的总人数（生成1到该数的编号）</li>
+            <li>设置每次需要抽取的数量</li>
+            <li>可以自定义抽奖标题（可选）</li>
+            <li>点击"开始抽奖"按钮进行抽奖</li>
+            <li>抽奖结果会显示在历史记录中</li>
+          </ol>
+        </div>
+        
+        <div>
+          <h4 class="font-semibold mb-2">如何分享？</h4>
+          <p class="text-sm">点击右上角"分享"按钮，复制链接发送给他人。每个人的抽奖数据独立保存，互不干扰。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="mt-12 py-6 bg-gray-100 text-center text-gray-600 text-sm">
+    <div class="container mx-auto px-4">
+      <p>多人抽奖工具 &copy; 2023 - 数据独立，安全易用</p>
+    </div>
+  </footer>
+
+  <script>
+    // 生成唯一用户ID（32位随机字符串）
+    function generateUserId() {
+      return Math.random().toString(36).substring(2, 15) + 
+             Math.random().toString(36).substring(2, 15);
+    }
+
+    // 从URL获取用户ID，没有则生成新的
+    function getUserId() {
+      const params = new URLSearchParams(window.location.search);
+      let userId = params.get('user');
+      
+      if (!userId) {
+        userId = generateUserId();
+        // 更新URL但不刷新页面
+        params.set('user', userId);
+        window.history.pushState({}, '', `${window.location.pathname}?${params.toString()}`);
+        
+        // 首次使用显示提示
+        document.getElementById('user-info').classList.remove('hidden');
+      }
+      
+      return userId;
+    }
+
+    // 数据存储工具（按用户隔离）
+    const Storage = {
+      userId: getUserId(),
+      
+      // 存储键前缀（确保不同用户数据隔离）
+      getKey(key) {
+        return `lottery_${this.userId}_${key}`;
+      },
+      
+      // 保存数据
+      save(key, data) {
+        localStorage.setItem(this.getKey(key), JSON.stringify(data));
+      },
+      
+      // 获取数据
+      get(key, defaultValue = null) {
+        const data = localStorage.getItem(this.getKey(key));
+        return data ? JSON.parse(data) : defaultValue;
+      },
+      
+      // 删除数据
+      remove(key) {
+        localStorage.removeItem(this.getKey(key));
+      }
+    };
+
+    // 全局状态（从存储加载或初始化）
+    const state = {
+      isDrawing: false,
+      totalPeople: Storage.get('totalPeople', 100),
+      drawCount: Storage.get('drawCount', 1),
+      drawTitle: Storage.get('drawTitle', "幸运抽奖"),
+      history: Storage.get('history', [])
+    };
+
+    // DOM元素
+    const elements = {
+      totalPeople: document.getElementById('total-people'),
+      drawCount: document.getElementById('draw-count'),
+      decreaseCount: document.getElementById('decrease-count'),
+      increaseCount: document.getElementById('increase-count'),
+      drawTitle: document.getElementById('draw-title'),
+      drawButton: document.getElementById('draw-button'),
+      resultDisplay: document.getElementById('result-display'),
+      animationArea: document.getElementById('animation-area'),
+      numberAnimation: document.getElementById('number-animation'),
+      historyContainer: document.getElementById('history-container'),
+      emptyHistory: document.getElementById('empty-history'),
+      clearHistory: document.getElementById('clear-history'),
+      helpBtn: document.getElementById('help-btn'),
+      helpModal: document.getElementById('help-modal'),
+      helpModalContent: document.getElementById('help-modal-content'),
+      closeHelp: document.getElementById('close-help'),
+      shareBtn: document.getElementById('share-btn'),
+      shareModal: document.getElementById('share-modal'),
+      shareModalContent: document.getElementById('share-modal-content'),
+      closeShare: document.getElementById('close-share'),
+      shareLink: document.getElementById('share-link'),
+      copyLink: document.getElementById('copy-link')
+    };
+
+    // 初始化
+    function init() {
+      // 加载保存的状态到界面
+      elements.totalPeople.value = state.totalPeople;
+      elements.drawCount.value = state.drawCount;
+      elements.drawTitle.value = state.drawTitle;
+      
+      setupEventListeners();
+      updateHistoryDisplay();
+      updateShareLink();
+    }
+
+    // 生成不重复的随机数
+    function generateRandomNumbers(total, count) {
+      if (count > total) return [];
+      
+      const numbers = [];
+      while (numbers.length < count) {
+        const num = Math.floor(Math.random() * total) + 1;
+        if (!numbers.includes(num)) numbers.push(num);
+      }
+      return numbers.sort((a, b) => a - b);
+    }
+
+    // 开始抽奖
+    function startDrawing() {
+      if (state.isDrawing) return;
+      
+      const total = parseInt(elements.totalPeople.value) || 1;
+      const count = parseInt(elements.drawCount.value) || 1;
+      
+      // 验证输入
+      if (total < 1) {
+        alert('请设置有效的总人数');
+        return;
+      }
+      
+      if (count < 1 || count > 50) {
+        alert('每次抽取数量必须在1-50之间');
+        return;
+      }
+      
+      if (count > total) {
+        alert('抽取数量不能超过总人数');
+        return;
+      }
+      
+      // 更新状态并保存
+      state.isDrawing = true;
+      state.totalPeople = total;
+      state.drawCount = count;
+      state.drawTitle = elements.drawTitle.value || "幸运抽奖";
+      saveState();
+      
+      // 更新UI
+      elements.drawButton.disabled = true;
+      elements.drawButton.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>抽奖中...';
+      elements.drawButton.classList.add('opacity-80');
+      
+      // 隐藏结果，显示动画
+      elements.resultDisplay.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+      setTimeout(() => {
+        elements.resultDisplay.classList.add('hidden');
+        elements.animationArea.classList.remove('opacity-0');
+        elements.animationArea.classList.add('opacity-100', 'transition-opacity', 'duration-300');
+        
+        // 随机数动画
+        let animationCounter = 0;
+        const maxAnimationSteps = 50;
+        const animationInterval = setInterval(() => {
+          const randomNums = generateRandomNumbers(total, count);
+          elements.numberAnimation.textContent = randomNums.join('，');
+          
+          animationCounter++;
+          if (animationCounter >= maxAnimationSteps) {
+            clearInterval(animationInterval);
+            finishDrawing(randomNums);
+          }
+        }, 80);
+      }, 300);
+    }
+
+    // 完成抽奖
+    function finishDrawing(numbers) {
+      // 保存结果到历史记录
+      const result = {
+        id: Date.now(),
+        title: state.drawTitle,
+        date: new Date(),
+        numbers: numbers
+      };
+      state.history.unshift(result);
+      saveState(); // 保存历史记录
+      
+      // 更新历史记录显示
+      updateHistoryDisplay();
+      
+      // 显示最终结果
+      setTimeout(() => {
+        elements.animationArea.classList.remove('opacity-100');
+        elements.animationArea.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+        
+        setTimeout(() => {
+          elements.resultDisplay.textContent = numbers.join('，');
+          elements.resultDisplay.classList.remove('hidden');
+          setTimeout(() => {
+            elements.resultDisplay.classList.remove('opacity-0');
+          }, 50);
+        }, 500);
+        
+        // 重置按钮
+        elements.drawButton.disabled = false;
+        elements.drawButton.innerHTML = '<i class="fa fa-play mr-2"></i>开始抽奖';
+        elements.drawButton.classList.remove('opacity-80');
+        
+        state.isDrawing = false;
+      }, 1000);
+    }
+
+    // 更新历史记录显示
+    function updateHistoryDisplay() {
+      if (state.history.length === 0) {
+        elements.emptyHistory.classList.remove('hidden');
+        return;
+      }
+      
+      elements.emptyHistory.classList.add('hidden');
+      elements.historyContainer.innerHTML = '';
+      
+      state.history.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'p-3 border border-gray-100 rounded-lg bg-gray-50 hover:shadow-sm transition-shadow';
+        
+        // 格式化日期
+        const date = new Date(item.date);
+        const formattedDate = date.toLocaleString('zh-CN', {
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+        
+        // 生成编号标签
+        const numberTags = item.numbers.map(num => 
+          `<span class="inline-block px-2 py-0.5 bg-primary/10 text-primary text-sm rounded m-0.5">${num}</span>`
+        ).join('');
+        
+        div.innerHTML = `
+          <div class="flex justify-between items-start mb-2">
+            <h4 class="font-medium text-gray-800">${item.title}</h4>
+            <span class="text-xs text-gray-500">${formattedDate}</span>
+          </div>
+          <div class="flex flex-wrap">
+            ${numberTags}
+          </div>
+        `;
+        
+        elements.historyContainer.appendChild(div);
+      });
+    }
+
+    // 保存当前状态到本地存储
+    function saveState() {
+      Storage.save('totalPeople', state.totalPeople);
+      Storage.save('drawCount', state.drawCount);
+      Storage.save('drawTitle', state.drawTitle);
+      Storage.save('history', state.history);
+    }
+
+    // 更新分享链接
+    function updateShareLink() {
+      elements.shareLink.value = window.location.href;
+    }
+
+    // 打开模态框
+    function openModal(modalId, contentId) {
+      document.getElementById(modalId).classList.remove('hidden');
+      setTimeout(() => {
+        const content = document.getElementById(contentId);
+        content.classList.remove('scale-95', 'opacity-0');
+        content.classList.add('scale-100', 'opacity-100', 'transition-all', 'duration-300');
+      }, 10);
+    }
+
+    // 关闭模态框
+    function closeModal(modalId, contentId) {
+      const content = document.getElementById(contentId);
+      content.classList.remove('scale-100', 'opacity-100');
+      content.classList.add('scale-95', 'opacity-0', 'transition-all', 'duration-300');
+      
+      setTimeout(() => {
+        document.getElementById(modalId).classList.add('hidden');
+      }, 300);
+    }
+
+    // 设置事件监听器
+    function setupEventListeners() {
+      // 抽奖按钮
+      elements.drawButton.addEventListener('click', startDrawing);
+      
+      // 调整抽奖数量
+      elements.decreaseCount.addEventListener('click', () => {
+        let count = parseInt(elements.drawCount.value) || 1;
+        if (count > 1) {
+          count--;
+          elements.drawCount.value = count;
+          state.drawCount = count;
+          saveState();
+        }
+      });
+      
+      elements.increaseCount.addEventListener('click', () => {
+        let count = parseInt(elements.drawCount.value) || 1;
+        const total = parseInt(elements.totalPeople.value) || 1;
+        if (count < 50 && count < total) {
+          count++;
+          elements.drawCount.value = count;
+          state.drawCount = count;
+          saveState();
+        }
+      });
+      
+      // 输入变化时保存状态
+      elements.totalPeople.addEventListener('change', () => {
+        const total = parseInt(elements.totalPeople.value) || 1;
+        state.totalPeople = total;
+        
+        // 确保抽奖数量不超过总人数
+        let count = parseInt(elements.drawCount.value) || 1;
+        if (count > total) {
+          count = total;
+          elements.drawCount.value = count;
+          state.drawCount = count;
+        }
+        saveState();
+      });
+      
+      elements.drawTitle.addEventListener('change', () => {
+        state.drawTitle = elements.drawTitle.value || "幸运抽奖";
+        saveState();
+      });
+      
+      // 清空历史记录
+      elements.clearHistory.addEventListener('click', () => {
+        if (state.history.length > 0 && confirm('确定要清空所有抽奖历史吗？')) {
+          state.history = [];
+          saveState();
+          updateHistoryDisplay();
+        }
+      });
+      
+      // 分享功能
+      elements.shareBtn.addEventListener('click', () => {
+        openModal('share-modal', 'share-modal-content');
+      });
+      
+      elements.closeShare.addEventListener('click', () => {
+        closeModal('share-modal', 'share-modal-content');
+      });
+      
+      elements.copyLink.addEventListener('click', () => {
+        elements.shareLink.select();
+        document.execCommand('copy');
+        
+        // 显示复制成功反馈
+        const originalText = elements.copyLink.textContent;
+        elements.copyLink.textContent = '已复制';
+        setTimeout(() => {
+          elements.copyLink.textContent = originalText;
+        }, 1500);
+      });
+      
+      // 帮助模态框
+      elements.helpBtn.addEventListener('click', () => {
+        openModal('help-modal', 'help-modal-content');
+      });
+      
+      elements.closeHelp.addEventListener('click', () => {
+        closeModal('help-modal', 'help-modal-content');
+      });
+      
+      // 点击模态框外部关闭
+      document.getElementById('share-modal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('share-modal')) {
+          closeModal('share-modal', 'share-modal-content');
+        }
+      });
+      
+      document.getElementById('help-modal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('help-modal')) {
+          closeModal('help-modal', 'help-modal-content');
+        }
+      });
+    }
+
+    // 启动应用
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
