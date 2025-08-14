@@ -38,3 +38,20 @@ git clone https://github.com/username/project.git
 cd project
 pip install -r requirements.txt
 python examples/quick_start.py
+
+## 📂 项目结构
+```bash
+git clone https://github.com/username/project.git
+cd project
+pip install -r requirements.txt
+python examples/quick_start.py
+
+## 📸 预览
+
+
+## 🤝 贡献
+
+## 📄 License
+
+
+
