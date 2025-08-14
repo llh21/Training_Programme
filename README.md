@@ -1,6 +1,6 @@
 <!-- ========= 顶部横幅 ========= -->
 <p align="center">
-  <img src="assets/Python.png" width="120">
+  <img src="assets/Python.png" width="12000">
   <br>
   <strong>Training_Programme</strong>
   <br>
