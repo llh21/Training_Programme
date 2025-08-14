@@ -38,7 +38,7 @@ python examples/quick_start.py
 
 ---
 
-**## 📂 项目结构**
+```## 📂 项目结构
 ```bash
 Training_Programme
 ├── src/                 # 核心源码
