@@ -1,6 +1,6 @@
 <!-- 顶部居中 Logo + Slogan -->
 <p align="center">
-  <img src="python.png" width="120">
+  <img src="assets/python.png" width="120">
   <br>
   <strong>项目学习：不积跬步，无以至千里</strong>
 </p>
@@ -39,19 +39,30 @@ cd project
 pip install -r requirements.txt
 python examples/quick_start.py
 
-## 📂 项目结构
-```bash
-git clone https://github.com/username/project.git
-cd project
-pip install -r requirements.txt
-python examples/quick_start.py
+**## 📂 项目结构**
+project
+├── src/                 # 源码
+│   └── main.py
+├── examples/            # 可运行示例
+├── tests/               # 单元测试
+├── docs/                # 更详细文档
+├── assets/              # README 图片 / GIF
+├── .github/             # GitHub Actions
+├── requirements.txt
+└── README.md
+**## 📸 预览**
+| CLI 运行                                 | Web Demo                               |
+| -------------------------------------- | -------------------------------------- |
+| <img src="assets/cli.gif" width="300"> | <img src="assets/web.png" width="300"> |
 
-## 📸 预览
 
+**## 🤝 贡献**
+Fork 本仓库
+创建分支 feat/xxx
+提交 PR
 
-## 🤝 贡献
-
-## 📄 License
+**## 📄 License**
+MIT © 2024 Your Name
 
 
 
