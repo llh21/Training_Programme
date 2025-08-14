@@ -1,8 +1,8 @@
 <!-- 顶部居中 Logo + Slogan -->
 <p align="center">
-  <img src="assets/logo.png" width="120">
+  <img src="python.png" width="120">
   <br>
-  <strong>一句话 Slogan：让你的代码会说话</strong>
+  <strong>项目学习：不积跬步，无以至千里</strong>
 </p>
 
 <!-- 徽章区：一行放 3~4 个，不要超宽 -->
