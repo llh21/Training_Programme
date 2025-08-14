@@ -1,68 +1,37 @@
-<!-- 顶部居中 Logo + Slogan -->
+<!-- ========= 顶部横幅 ========= -->
 <p align="center">
   <img src="assets/python.png" width="120">
   <br>
-  <strong>项目学习：不积跬步，无以至千里</strong>
+  <strong>Training_Programme</strong>
+  <br>
+  <em>一站式 Python 训练脚本模板 | 开箱即用 · 持续集成 · 文档友好</em>
 </p>
 
-<!-- 徽章区：一行放 3~4 个，不要超宽 -->
+<!-- ========= 徽章一行 ========= -->
 <p align="center">
-  <img src="https://img.shields.io/github/license/username/project" alt="License"/>
-  <img src="https://img.shields.io/github/stars/username/project" alt="Stars"/>
+  <img src="https://img.shields.io/github/license/llh21/Training_Programme" alt="License"/>
+  <img src="https://img.shields.io/github/stars/llh21/Training_Programme" alt="Stars"/>
   <img src="https://img.shields.io/badge/python-3.10-blue" alt="Python"/>
-  <img src="https://github.com/username/project/workflows/CI/badge.svg" alt="CI"/>
+  <img src="https://github.com/llh21/Training_Programme/workflows/CI/badge.svg" alt="CI"/>
 </p>
 
-<!-- 目录（自动生成，GitHub 会渲染） -->
+<!-- ========= 目录（折叠） ========= -->
 <details>
-  <summary>📙 目录</summary>
+<summary>📙 目录</summary>
 
-- [✨ 特性](#-特性)
 - [🚀 快速开始](#-快速开始)
 - [📂 项目结构](#-项目结构)
-- [📸 预览](#-预览)
-- [🤝 贡献](#-贡献)
-- [📄 License](#-license)
+- [📸 效果预览](#-效果预览)
+- [🛠️ 本地开发](#️-本地开发)
+- [🤝 参与贡献](#-参与贡献)
+- [📄 开源协议](#-开源协议)
 </details>
 
 ---
 
-## ✨ 特性
-- ✅ **易用**：一行命令即可运行  
-- ✅ **高性能**：单卡 10 万 QPS  
-- ✅ **跨平台**：Windows / macOS / Linux
-
 ## 🚀 快速开始
 ```bash
-git clone https://github.com/username/project.git
-cd project
+git clone https://github.com/llh21/Training_Programme.git
+cd Training_Programme
 pip install -r requirements.txt
 python examples/quick_start.py
-
-**## 📂 项目结构**
-project
-├── src/                 # 源码
-│   └── main.py
-├── examples/            # 可运行示例
-├── tests/               # 单元测试
-├── docs/                # 更详细文档
-├── assets/              # README 图片 / GIF
-├── .github/             # GitHub Actions
-├── requirements.txt
-└── README.md
-**## 📸 预览**
-| CLI 运行                                 | Web Demo                               |
-| -------------------------------------- | -------------------------------------- |
-| <img src="assets/cli.gif" width="300"> | <img src="assets/web.png" width="300"> |
-
-
-**## 🤝 贡献**
-Fork 本仓库
-创建分支 feat/xxx
-提交 PR
-
-**## 📄 License**
-MIT © 2024 Your Name
-
-
-
